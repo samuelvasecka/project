@@ -1,4 +1,4 @@
 # project
 
-# netlify link
+netlify link
 https://pensive-davinci-e25e0a.netlify.app/
