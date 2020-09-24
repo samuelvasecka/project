@@ -10,6 +10,10 @@
   padding-top: 20px;
 }
 
+.all {
+  width: 90%;
+}
+
 .column {
   float: left;
   width: 50%;
@@ -29,7 +33,6 @@
 .header {
   width: 100%;
   padding: 20px;
-  height: 10vh;
   text-align: center;
 }
 

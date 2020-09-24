@@ -2,6 +2,22 @@ import React, { Component } from 'react';
 import './App.css';
 import { LiveProvider, LiveEditor, LivePreview, LiveError } from "react-live";
 
+var products = `
+                {id: 1, name: "Product 1"},
+                {id: 2, name: "Product 2"},
+                {id: 3, name: "Product 3"},`;
+
+var header = `
+                <th>ID</th>
+                <th>Name</th>`;
+
+var components = `
+                  <td>{item.id}</td>
+                  <td>{item.name}</td>`;
+
+const space1 = "                ";
+const space2 = "                  ";
+
 var code = `
   class App extends React.Component {
     render () {
@@ -10,17 +26,10 @@ var code = `
           <table id='products'>
            <tbody>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
               </tr>
               {[
-                {id: 1, name: "Product 1"},
-                {id: 2, name: "Product 2"},
-                {id: 3, name: "Product 3"},
               ].map(item => (
                 <tr>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
                 </tr>
               ))}
            </tbody>
@@ -41,36 +50,40 @@ class App extends React.Component {
       code: code,
       colAdded: false,
       labEdited: false,
+      products: products,
+      header: header,
+      components: components,
+      column: 0,
     }
     this.clickAddColumn = this.clickAddColumn.bind(this);
     this.clickEditLabel = this.clickEditLabel.bind(this);
   }
 
-  findPlaces(code, input, index) {
-    return code.slice(0, index) + input + code.slice(index);
+  createCode(code, products, header, components) {
+    return code.slice(0, 203) + header + code.slice(203, 240) + products + code.slice(240, 291) + components + code.slice(291);
   }
 
   clickAddColumn() {
+    var name = document.getElementById('input').value;
     this.setState(state => {
-      var codeTemp = this.state.code;
-      if (this.state.colAdded) {
-        codeTemp = code;
-      } else {
-        codeTemp = this.findPlaces(codeTemp, "\n                <th>Price</th>", codeTemp.indexOf("Name</th>") + 9);
-        codeTemp = this.findPlaces(codeTemp, "\n                  <td>{item.price}</td>", codeTemp.indexOf("item.name") + 15);
-        codeTemp = this.findPlaces(codeTemp, ", price: \"12,99€\"", codeTemp.indexOf("Product 1") + 10);
-        codeTemp = this.findPlaces(codeTemp, ", price: \"7,00€\"", codeTemp.indexOf("Product 2") + 10);
-        codeTemp = this.findPlaces(codeTemp, ", price: \"18,45€\"", codeTemp.indexOf("Product 3") + 10);
-      }
-      const colAdded = !this.state.colAdded;
+      var headerTemp = this.state.header + "\n" + space1 + "<th>" + name + "</th>";
+      var componentsTemp = this.state.components + "\n" + space2 + "<td>{item.added" + this.state.column + "}</td>";
+      var array = this.state.products.split("\"},", 3);
+      var productsTemp = "";
+      array.forEach((item, i) => {
+        productsTemp += item + "\", added" + this.state.column + ": \"" + this.state.column + "\"},";
+      });
+      var column = this.state.column + 1;
       return {
-        code: codeTemp,
-        colAdded: colAdded,
+        header: headerTemp,
+        components: componentsTemp,
+        products: productsTemp,
+        column: column,
       }
     })
   }
 
-  clickEditLabel() {
+  clickEditLabel(e) {
     this.setState(state => {
       var codeTemp = this.state.code;
       if (this.state.labEdited) {
@@ -87,15 +100,9 @@ class App extends React.Component {
   }
 
   renderAddColButton() {
-    if (this.state.colAdded) {
-      return <button id="add-column" onClick={this.clickAddColumn}>
-        Remove column
-      </button>
-    } else {
       return <button id="add-column" onClick={this.clickAddColumn}>
         Add column
       </button>
-    }
   }
 
   renderEditLabButton() {
@@ -113,10 +120,11 @@ class App extends React.Component {
   render() {
     return <div class="all">
       <div class="header" id="header">
+        <input type="text" id="input" placeholder="column name" name="input"/>
         {this.renderAddColButton()}
         {this.renderEditLabButton()}
       </div>
-      <LiveProvider code={this.state.code}>
+      <LiveProvider code={this.createCode(this.state.code, this.state.products, this.state.header, this.state.components)}>
         <div class="row">
           <div class="column" id="column1">
             <LiveEditor />
